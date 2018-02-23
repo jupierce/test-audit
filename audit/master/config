@@ -1,0 +1,220 @@
+admissionConfig:
+  pluginConfig:
+    AlwaysPullImages:
+      configuration: {apiVersion: v1, kind: DefaultAdmissionConfig}
+    BuildDefaults:
+      configuration:
+        apiVersion: v1
+        env: []
+        kind: BuildDefaultsConfig
+        resources:
+          limits: {}
+          requests: {}
+    BuildOverrides:
+      configuration: {apiVersion: v1, forcePull: true, kind: BuildOverridesConfig}
+    ClusterResourceOverride:
+      configuration: {apiVersion: v1, cpuRequestToLimitPercent: 5, kind: ClusterResourceOverrideConfig,
+        limitCPUToMemoryPercent: 200, memoryRequestToLimitPercent: 50}
+    DefaultStorageClass:
+      configuration: {apiVersion: v1, kind: DefaultStorageClass}
+    PodNodeConstraints:
+      configuration: {apiVersion: v1, kind: PodNodeConstraintsConfig}
+    ProjectRequestLimit:
+      configuration:
+        apiVersion: v1
+        kind: ProjectRequestLimitConfig
+        limits:
+        - selector: {admin: 'true'}
+        - {maxProjects: 1}
+    RunOnceDuration:
+      configuration: {activeDeadlineSecondsOverride: 3600, apiVersion: v1, kind: RunOnceDurationConfig}
+    openshift.io/ImagePolicy:
+      configuration:
+        apiVersion: v1
+        executionRules:
+          execution-denied:
+            matchImageAnnotations:
+            - {key: images.openshift.io/deny-execution, value: 'true'}
+            name: execution-denied
+            onResources:
+            - {resource: pods}
+            - {resource: builds}
+            reject: true
+            skipOnResolutionFailure: true
+        kind: ImagePolicyConfig
+    openshift.io/RestrictSubjectBindings:
+      configuration: {apiversion: v1, kind: DefaultAdmissionConfig}
+  pluginOrderOverride: null
+apiLevels: [v1]
+apiVersion: v1
+assetConfig:
+  extensionProperties: {CLI_linux64: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/linux/oc.tar.gz',
+    CLI_mac: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/macosx/oc.tar.gz',
+    CLI_windows: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/windows/oc.zip',
+    account_url: 'https://manage.int.openshift.com', doc_url: 'https://docs.openshift.com/online/',
+    enable_pipelines: 'true', help_link_text: Help, help_link_url: 'https://help.openshift.com',
+    online_version: NUM_FIELD, registration_link: 'https://wwwstg-osdevelopers.itos.redhat.com/devpreview/register.html',
+    registry_url: registry.CLUSTER_NAME.openshift.com, status_link: 'https://status.starter.openshift.com',
+    status_page: 'https://lhzjj4v7mmyd.statuspage.io/api/v2/summary.json', status_widget_key: 'false',
+    support_link: 'https://mojo.redhat.com/docs/DOC-1083019'}
+  extensionScripts: [/etc/openshift-online/ui-extensions/assets/extensions/online-extensions.js,
+    /etc/openshift-online/ui-extensions/assets/extensions/intercom-widget-extension.js]
+  extensionStylesheets: [/etc/openshift-online/ui-extensions/assets/extensions/online-extensions.css]
+  extensions:
+    about: {name: about, sourceDirectory: /etc/openshift-free/ui-extensions/custom-templates/}
+  logoutURL: https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/logout?post_logout_redirect_uri=https://api.CLUSTER_NAME.openshift.com
+  servingInfo: {maxRequestsInFlight: 1200}
+auditConfig: {enabled: false, maximumFileRetentionDays: 14, maximumFileSizeMegabytes: 100,
+  maximumRetainedFiles: 10}
+controllerConfig:
+  election: {lockName: openshift-master-controllers}
+  serviceServingCert:
+    signer: {certFile: service-signer.crt, keyFile: service-signer.key}
+controllerLeaseTTL: 30
+controllers: '*'
+deploymentControllerResyncMinutes: 15
+dnsConfig: {bindAddress: 'NUM_FIELD:8053', bindNetwork: tcp4}
+etcdClientInfo: {ca: master.etcd-ca.crt, certFile: master.etcd-client.crt, keyFile: master.etcd-client.key}
+etcdStorageConfig: {kubernetesStoragePrefix: kubernetes.io, kubernetesStorageVersion: v1,
+  openShiftStoragePrefix: openshift.io, openShiftStorageVersion: v1}
+imageConfig: {format: 'registry.reg-aws.openshift.com:443/openshift3/ose-${component}:${version}',
+  latest: false}
+imagePolicyConfig: {disableScheduledImport: false, maxImagesBulkImportedPerRepository: 5,
+  maxScheduledImageImportsPerMinute: 5, scheduledImageImportMinimumIntervalSeconds: 86400}
+jenkinsPipelineConfig: {templateName: jenkins-persistent}
+kind: MasterConfig
+kubeletClientInfo: {ca: ca-bundle.crt, certFile: master.kubelet-client.crt, keyFile: master.kubelet-client.key,
+  port: 10250}
+kubernetesMasterConfig:
+  admissionConfig: null
+  apiServerArguments:
+    cloud-config: [/etc/origin/cloudprovider/aws.conf]
+    cloud-provider: [aws]
+    max-requests-inflight: ['1200']
+    storage-backend: [etcd3]
+    storage-media-type: [application/vnd.kubernetes.protobuf]
+  controllerArguments:
+    cloud-config: [/etc/origin/cloudprovider/aws.conf]
+    cloud-provider: [aws]
+    cluster-signing-cert-file: [/etc/origin/master/ca.crt]
+    cluster-signing-key-file: [/etc/origin/master/ca.key]
+    disable-attach-detach-reconcile-sync: ['true']
+    pvclaimbinder-sync-period: [30s]
+    terminated-pod-gc-threshold: ['3000']
+  masterCount: 3
+  masterIP: NUM_FIELD
+  podEvictionTimeout: null
+  proxyClientInfo: {certFile: master.proxy-client.crt, keyFile: master.proxy-client.key}
+  schedulerArguments: null
+  schedulerConfigFile: /etc/origin/master/scheduler.json
+  servicesNodePortRange: ''
+  servicesSubnet: NUM_FIELD/16
+  staticNodeNames: []
+masterClients:
+  externalKubernetesClientConnectionOverrides: {acceptContentTypes: 'application/vnd.kubernetes.protobuf,application/json',
+    burst: 400, contentType: application/vnd.kubernetes.protobuf, qps: 200}
+  externalKubernetesKubeConfig: ''
+  openshiftLoopbackClientConnectionOverrides: {acceptContentTypes: 'application/vnd.kubernetes.protobuf,application/json',
+    burst: 600, contentType: application/vnd.kubernetes.protobuf, qps: 300}
+  openshiftLoopbackKubeConfig: openshift-master.kubeconfig
+masterPublicURL: https://api.CLUSTER_NAME.openshift.com
+networkConfig:
+  clusterNetworkCIDR: NUM_FIELD/14
+  externalIPNetworkCIDRs: [NUM_FIELD/0]
+  hostSubnetLength: 9
+  networkPluginName: redhat/openshift-ovs-multitenant
+  serviceNetworkCIDR: NUM_FIELD/16
+oauthConfig:
+  alwaysShowProviderSelection: true
+  assetPublicURL: https://console.CLUSTER_NAME.openshift.com/console/
+  grantConfig: {method: auto}
+  identityProviders:
+    keycloak:
+      challenge: true
+      login: true
+      mappingMethod: lookup
+      name: keycloak
+      provider:
+        apiVersion: v1
+        claims:
+          email: [email]
+          id: [preferred_username]
+          name: [name]
+          preferredUsername: [preferred_username]
+        clientID: oso
+        clientSecret: 8421ab4b-33df-4553-9e84-397740e8e8d5
+        kind: OpenIDIdentityProvider
+        urls: {authorize: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/auth',
+          token: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/token',
+          userInfo: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/userinfo'}
+    keycloak-1:
+      challenge: true
+      login: true
+      mappingMethod: lookup
+      name: keycloak-1
+      provider:
+        apiVersion: v1
+        claims:
+          email: [email]
+          id: [preferred_username]
+          name: [name]
+          preferredUsername: [preferred_username]
+        clientID: oso
+        clientSecret: 8421ab4b-33df-4553-9e84-397740e8e8d5
+        kind: OpenIDIdentityProvider
+        urls: {authorize: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/auth',
+          token: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/token',
+          userInfo: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/userinfo'}
+    keycloak-2:
+      challenge: true
+      login: true
+      mappingMethod: lookup
+      name: keycloak-2
+      provider:
+        apiVersion: v1
+        claims:
+          email: [email]
+          id: [preferred_username]
+          name: [name]
+          preferredUsername: [preferred_username]
+        clientID: oso
+        clientSecret: 8421ab4b-33df-4553-9e84-397740e8e8d5
+        kind: OpenIDIdentityProvider
+        urls: {authorize: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/auth',
+          token: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/token',
+          userInfo: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/userinfo'}
+  masterCA: ca-bundle.crt
+  masterPublicURL: https://api.CLUSTER_NAME.openshift.com
+  masterURL: https://internal.api.CLUSTER_NAME.openshift.com
+  sessionConfig: {sessionMaxAgeSeconds: 3600, sessionName: ssn, sessionSecretsFile: /etc/origin/master/session-secrets.yaml}
+  templates: {error: /etc/openshift-free/ui-extensions/custom-templates/oauth-error-int.html,
+    providerSelection: /etc/openshift-free/ui-extensions/custom-templates/provider-selection-int.html}
+  tokenConfig: {accessTokenMaxAgeSeconds: 31536000, authorizeTokenMaxAgeSeconds: 300}
+pauseControllers: false
+policyConfig: {bootstrapPolicyFile: /etc/origin/master/policy.json, openshiftInfrastructureNamespace: openshift-infra,
+  openshiftSharedResourcesNamespace: openshift}
+projectConfig:
+  defaultNodeSelector: type=compute
+  projectRequestMessage: ''
+  projectRequestTemplate: default/project-request
+  securityAllocator: {mcsAllocatorRange: 's0:/2', mcsLabelsPerProject: 5, uidAllocatorRange: 1000000000-1999999999/10000}
+routingConfig: {}
+serviceAccountConfig:
+  limitSecretReferences: false
+  managedNames: [default, builder, deployer]
+  masterCA: ca-bundle.crt
+  privateKeyFile: serviceaccounts.private.key
+  publicKeyFiles: [serviceaccounts.public.key]
+servingInfo:
+  bindAddress: NUM_FIELD:443
+  bindNetwork: tcp4
+  certFile: master.server.crt
+  clientCA: ca.crt
+  keyFile: master.server.key
+  maxRequestsInFlight: 1200
+  namedCertificates:
+  - certFile: /etc/origin/master/named_certificates/wildcard.CLUSTER_NAME.openshift.com.crt
+    keyFile: /etc/origin/master/named_certificates/wildcard.CLUSTER_NAME.openshift.com.key
+    names: [api.CLUSTER_NAME.openshift.com, console.CLUSTER_NAME.openshift.com]
+  requestTimeoutSeconds: 3600
+volumeConfig: {dynamicProvisioningEnabled: true}

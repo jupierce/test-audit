@@ -1,0 +1,81 @@
+kind: DeploymentConfig
+spec:
+  replicas: 2
+  selector: {docker-registry: default}
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams: {intervalSeconds: 1, maxSurge: 50%, maxUnavailable: 50%, timeoutSeconds: 600,
+      updatePeriodSeconds: 1}
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels: {docker-registry: default}
+    spec:
+      containers:
+        registry:
+          env:
+            REGISTRY_CONFIGURATION_PATH: {name: REGISTRY_CONFIGURATION_PATH, value: /etc/registryconfig/config.yml}
+            REGISTRY_HTTP_ADDR: {name: REGISTRY_HTTP_ADDR, value: ':5000'}
+            REGISTRY_HTTP_NET: {name: REGISTRY_HTTP_NET, value: tcp}
+            REGISTRY_HTTP_SECRET: {name: REGISTRY_HTTP_SECRET, value: '*********'}
+            REGISTRY_HTTP_TLS_CERTIFICATE: {name: REGISTRY_HTTP_TLS_CERTIFICATE, value: /etc/secrets/registry.crt}
+            REGISTRY_HTTP_TLS_KEY: {name: REGISTRY_HTTP_TLS_KEY, value: /etc/secrets/registry.key}
+            REGISTRY_MIDDLEWARE_REPOSITORY_OPENSHIFT_ENFORCEQUOTA: {name: REGISTRY_MIDDLEWARE_REPOSITORY_OPENSHIFT_ENFORCEQUOTA,
+              value: 'false'}
+            REGISTRY_OPENSHIFT_REQUESTS_WRITE_MAXRUNNING: {name: REGISTRY_OPENSHIFT_REQUESTS_WRITE_MAXRUNNING,
+              value: '256'}
+            REGISTRY_OPENSHIFT_REQUESTS_WRITE_MAXWAITINQUEUE: {name: REGISTRY_OPENSHIFT_REQUESTS_WRITE_MAXWAITINQUEUE,
+              value: 2h}
+            REGISTRY_OPENSHIFT_SERVER_ADDR: {name: REGISTRY_OPENSHIFT_SERVER_ADDR,
+              value: 'docker-registry.default.svc:5000'}
+          image: registry.reg-aws.openshift.com:443/openshift3/ose-docker-registry:vNUM_FIELD
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet: {path: /healthz, port: 5000, scheme: HTTPS}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: registry
+          ports:
+          - {containerPort: 5000, protocol: TCP}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet: {path: /healthz, port: 5000, scheme: HTTPS}
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits: {memory: 4G}
+            requests: {cpu: '0'}
+          securityContext: {privileged: false}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            dockercerts: {mountPath: /etc/secrets, name: dockercerts}
+            dockersecrets: {mountPath: /etc/registryconfig, name: dockersecrets}
+            registry-storage: {mountPath: /registry, name: registry-storage}
+      dnsPolicy: ClusterFirst
+      nodeSelector: {type: infra}
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: registry
+      serviceAccountName: registry
+      terminationGracePeriodSeconds: 30
+      volumes:
+        dockercerts:
+          name: dockercerts
+          secret: {defaultMode: 420, secretName: registry-certificates}
+        dockersecrets:
+          name: dockersecrets
+          secret: {defaultMode: 420, secretName: docker-registry-config}
+        registry-storage:
+          emptyDir: {sizeLimit: '0'}
+          name: registry-storage
+  test: false
+  triggers:
+  - {type: ConfigChange}

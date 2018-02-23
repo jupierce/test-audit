@@ -1,0 +1,78 @@
+kind: DeploymentConfig
+spec:
+  replicas: 2
+  selector: {router: router}
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams: {intervalSeconds: 1, maxSurge: 0, maxUnavailable: 25%, timeoutSeconds: 600,
+      updatePeriodSeconds: 1}
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels: {router: router}
+    spec:
+      containers:
+        router:
+          command: [/usr/bin/openshift-router, --loglevel=0]
+          env:
+            DEFAULT_CERTIFICATE_DIR: {name: DEFAULT_CERTIFICATE_DIR, value: /etc/pki/tls/private}
+            DEFAULT_CERTIFICATE_PATH: {name: DEFAULT_CERTIFICATE_PATH, value: /etc/pki/tls/private/tls.crt}
+            EXTENDED_VALIDATION: {name: EXTENDED_VALIDATION, value: 'true'}
+            ROUTER_BACKEND_CHECK_INTERVAL: {name: ROUTER_BACKEND_CHECK_INTERVAL, value: 120s}
+            ROUTER_CANONICAL_HOSTNAME: {name: ROUTER_CANONICAL_HOSTNAME, value: elb.SHARD.CLUSTER_NAME.openshiftapps.com}
+            ROUTER_LISTEN_ADDR: {name: ROUTER_LISTEN_ADDR, value: 'NUM_FIELD:1936'}
+            ROUTER_METRICS_TYPE: {name: ROUTER_METRICS_TYPE, value: haproxy}
+            ROUTER_SERVICE_HTTPS_PORT: {name: ROUTER_SERVICE_HTTPS_PORT, value: '443'}
+            ROUTER_SERVICE_HTTP_PORT: {name: ROUTER_SERVICE_HTTP_PORT, value: '80'}
+            ROUTER_SERVICE_NAME: {name: ROUTER_SERVICE_NAME, value: router}
+            ROUTER_SERVICE_NAMESPACE: {name: ROUTER_SERVICE_NAMESPACE, value: default}
+            ROUTER_USE_PROXY_PROTOCOL: {name: ROUTER_USE_PROXY_PROTOCOL, value: 'true'}
+            STATS_PASSWORD: {name: STATS_PASSWORD, value: '*********'}
+            STATS_PORT: {name: STATS_PORT, value: '1936'}
+            STATS_USERNAME: {name: STATS_USERNAME, value: admin}
+          image: registry.reg-aws.openshift.com:443/openshift3/ose-haproxy-router:vNUM_FIELD
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet: {host: localhost, path: /healthz, port: 1936, scheme: HTTP}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: router
+          ports:
+          - {containerPort: 80, hostPort: 80, protocol: TCP}
+          - {containerPort: 443, hostPort: 443, protocol: TCP}
+          - {containerPort: 1936, hostPort: 1936, name: stats, protocol: TCP}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet: {host: localhost, path: /healthz, port: 1936, scheme: HTTP}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests: {cpu: 500m, memory: 2G}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            server-certificate: {mountPath: /etc/pki/tls/private, name: server-certificate,
+              readOnly: true}
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      nodeSelector: {type: infra}
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: router
+      serviceAccountName: router
+      terminationGracePeriodSeconds: 30
+      volumes:
+        server-certificate:
+          name: server-certificate
+          secret: {defaultMode: 420, secretName: router-certs}
+  test: false
+  triggers:
+  - {type: ConfigChange}

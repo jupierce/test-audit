@@ -1,0 +1,22 @@
+data: {webconsole-config.yaml: "kind: WebConsoleConfiguration\nextensions:\n  stylesheetURLs:\n\
+    \  - https://oso-console-extensions-openshift-infra.SHARD.CLUSTER_NAME.openshiftapps.com/ui/assets/extensions/online-extensions.css\n\
+    \  scriptURLs:\n  - https://oso-console-extensions-openshift-infra.SHARD.CLUSTER_NAME.openshiftapps.com/ui/assets/extensions/templates.js\n\
+    \  - https://oso-console-extensions-openshift-infra.SHARD.CLUSTER_NAME.openshiftapps.com/ui/assets/extensions/online-extensions.js\n\
+    \  - https://oso-console-extensions-openshift-infra.SHARD.CLUSTER_NAME.openshiftapps.com/ui/assets/extensions/intercom-widget-extension.js\n\
+    \  properties:\n    status_link: https://status.starter.openshift.com\n    help_link_url:\
+    \ https://help.openshift.com\n    support_link: https://mojo.redhat.com/docs/DOC-1083019\n\
+    \    help_link_text: Help\n    enable_pipelines: 'true'\n    status_page: https://lhzjj4v7mmyd.statuspage.io/api/v2/summary.json\n\
+    \    account_url: https://manage.int.openshift.com\n    status_widget_key: 'false'\n\
+    \    CLI_windows: https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/windows/oc.zip\n\
+    \    online_version: NUM_FIELD\n    CLI_mac: https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/macosx/oc.tar.gz\n\
+    \    doc_url: https://docs.openshift.com/online/\n    CLI_linux64: https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/linux/oc.tar.gz\n\
+    \    registry_url: registry.CLUSTER_NAME.openshift.com\nclusterInfo:\n  logoutPublicURL:\
+    \ https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/logout?post_logout_redirect_uri=https://api.CLUSTER_NAME.openshift.com\n\
+    \  metricsPublicURL: https://metrics.CLUSTER_NAME.openshift.com/hawkular/metrics\n\
+    \  loggingPublicURL: https://logs.CLUSTER_NAME.openshift.com\n  consolePublicURL:\
+    \ https://console.CLUSTER_NAME.openshift.com/console/\n  masterPublicURL: https://api.CLUSTER_NAME.openshift.com\n\
+    servingInfo:\n  namedCertificates:\n  certFile: /var/serving-cert/tls.crt\n  bindAddress:\
+    \ NUM_FIELD:8443\n  bindNetwork: tcp4\n  maxRequestsInFlight: 0\n  keyFile: /var/serving-cert/tls.key\n\
+    \  clientCA: ''\n  requestTimeoutSeconds: 0\napiVersion: webconsole.config.openshift.io/v1\n\
+    features:\n  inactivityTimeoutMinutes: 0\n  clusterResourceOverridesEnabled: true\n"}
+kind: ConfigMap
