@@ -15,8 +15,6 @@ admissionConfig:
     ClusterResourceOverride:
       configuration: {apiVersion: v1, cpuRequestToLimitPercent: 5, kind: ClusterResourceOverrideConfig,
         limitCPUToMemoryPercent: 200, memoryRequestToLimitPercent: 50}
-    DefaultStorageClass:
-      configuration: {apiVersion: v1, kind: DefaultStorageClass}
     PodNodeConstraints:
       configuration: {apiVersion: v1, kind: PodNodeConstraintsConfig}
     ProjectRequestLimit:
@@ -51,12 +49,12 @@ assetConfig:
   extensionProperties: {CLI_linux64: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/linux/oc.tar.gz',
     CLI_mac: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/macosx/oc.tar.gz',
     CLI_windows: 'https://mirror.openshift.com/pub/openshift-v3/clients/NUM_FIELD/windows/oc.zip',
-    account_url: 'https://manage.int.openshift.com', doc_url: 'https://docs.openshift.com/online/',
+    account_url: 'https://manage.stg.openshift.com', doc_url: 'https://docs.openshift.com/online/',
     enable_pipelines: 'true', help_link_text: Help, help_link_url: 'https://help.openshift.com',
-    online_version: NUM_FIELD, registration_link: 'https://wwwstg-osdevelopers.itos.redhat.com/devpreview/register.html',
+    online_version: NUM_FIELD, registration_link: 'https://www.openshift.com/devpreview/register.html',
     registry_url: registry.CLUSTER_NAME.openshift.com, status_link: 'https://status.starter.openshift.com',
     status_page: 'https://lhzjj4v7mmyd.statuspage.io/api/v2/summary.json', status_widget_key: 'false',
-    support_link: 'https://mojo.redhat.com/docs/DOC-1083019'}
+    support_link: 'https://docs.openshift.com/online/getting_started/devpreview_faq.html#devpreview-faq-support'}
   extensionScripts: [/etc/openshift-online/ui-extensions/assets/extensions/online-extensions.js,
     /etc/openshift-online/ui-extensions/assets/extensions/intercom-widget-extension.js]
   extensionStylesheets: [/etc/openshift-online/ui-extensions/assets/extensions/online-extensions.css]
@@ -90,14 +88,13 @@ kubernetesMasterConfig:
   apiServerArguments:
     cloud-config: [/etc/origin/cloudprovider/aws.conf]
     cloud-provider: [aws]
+    max-mutating-requests-inflight: ['600']
     max-requests-inflight: ['1200']
     storage-backend: [etcd3]
     storage-media-type: [application/vnd.kubernetes.protobuf]
   controllerArguments:
     cloud-config: [/etc/origin/cloudprovider/aws.conf]
     cloud-provider: [aws]
-    cluster-signing-cert-file: [/etc/origin/master/ca.crt]
-    cluster-signing-key-file: [/etc/origin/master/ca.key]
     disable-attach-detach-reconcile-sync: ['true']
     pvclaimbinder-sync-period: [30s]
     terminated-pod-gc-threshold: ['3000']
@@ -183,12 +180,30 @@ oauthConfig:
         urls: {authorize: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/auth',
           token: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/token',
           userInfo: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/userinfo'}
+    keycloak-openshiftio:
+      challenge: true
+      login: true
+      mappingMethod: lookup
+      name: keycloak-openshiftio
+      provider:
+        apiVersion: v1
+        claims:
+          email: [email]
+          id: [preferred_username]
+          name: [name]
+          preferredUsername: [preferred_username]
+        clientID: oso
+        clientSecret: 8421ab4b-33df-4553-9e84-397740e8e8d5
+        kind: OpenIDIdentityProvider
+        urls: {authorize: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/auth',
+          token: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/token',
+          userInfo: 'https://developers.redhat.com/auth/realms/rhd/protocol/openid-connect/userinfo'}
   masterCA: ca-bundle.crt
   masterPublicURL: https://api.CLUSTER_NAME.openshift.com
   masterURL: https://internal.api.CLUSTER_NAME.openshift.com
   sessionConfig: {sessionMaxAgeSeconds: 3600, sessionName: ssn, sessionSecretsFile: /etc/origin/master/session-secrets.yaml}
-  templates: {error: /etc/openshift-free/ui-extensions/custom-templates/oauth-error-int.html,
-    providerSelection: /etc/openshift-free/ui-extensions/custom-templates/provider-selection-int.html}
+  templates: {error: /etc/openshift-free/ui-extensions/custom-templates/oauth-error-stg.html,
+    providerSelection: /etc/openshift-free/ui-extensions/custom-templates/provider-selection-stg.html}
   tokenConfig: {accessTokenMaxAgeSeconds: 31536000, authorizeTokenMaxAgeSeconds: 300}
 pauseControllers: false
 policyConfig: {bootstrapPolicyFile: /etc/origin/master/policy.json, openshiftInfrastructureNamespace: openshift-infra,
